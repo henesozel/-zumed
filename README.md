@@ -9,7 +9,7 @@
 *İş İlani*<br>
 *Etkinlikler*<br>
 *Duyurular*<br>
-*Odeme Sistemei*<br>
+*Odeme Sistemi*<br>
 *Mezunlardan Bilgiler*<br>
 *İletişim*<br>
 
