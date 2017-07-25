@@ -102,7 +102,7 @@ class MesajController extends Controller
 
 
 
-             return back();
+            return response(['durum' => 'error', 'baslik' => '', 'icerik' => '']);
 
 
 
@@ -126,8 +126,7 @@ class MesajController extends Controller
 
 
 
-            return back();
-
+            return response(['durum' => 'error', 'baslik' => '', 'icerik' => '']);
 
 
 

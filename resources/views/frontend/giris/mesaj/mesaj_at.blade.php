@@ -164,19 +164,32 @@
 
                         </div><!--chat_area-->
 
+                        <div>
+                            <ul id="mesaj_listesi" class="list-unstyled"></ul>
+
+                        </div>
+
+                         @php
+                             $now =  Carbon\Carbon::now();
+
+                         @endphp
 
 
-
-                        <form action="" method="post">
+                        <form action="javascript(0)" method="" id="my_Form">
 
                             {{ csrf_field() }}
                         <div class="message_write">
-                            <textarea class="form-control"  placeholder="Mesaj Yaz" name="mesaj_icerigi"></textarea>
+                            <textarea class="form-control" id="m"  placeholder="Mesaj Yaz" name="mesaj_icerigi"></textarea>
                             <div class="clearfix"></div>
                             <div class="chat_bottom">
 
-                                <input type="hidden" value="{{ $kullanici_adi }}" id="g_kisi">
-                                <input id="mgonder" type="submit" class="pull-right btn btn-success" value="Gönder">
+                                <input type="hidden" value="{{ $mesajAtan->id }}" id="g_kisi">
+                                <input type="hidden" value="{{ $mesajAtilan->id }}" id="g_alan" >
+                                <input type="hidden" value="{{ $now }}" id="zaman">
+                                <input type="hidden" value="{{$mesajAtan->resim}}" id="resim">
+                                <input type="hidden" value="{{$mesajAtilan->resim}}" id="g_resim">
+                                <input type="submit" class="pull-right btn btn-success" value="Gönder">
+
                             </div>
                         </div>
                         </form>
@@ -399,6 +412,24 @@
             color: #fff;
             cursor:pointer;
         }
+        .deneme{
+            text-align: right;
+            padding:20px 20px 20px 20px;
+            border-radius: 20px;
+
+
+
+        }
+        .deneme1{
+            text-align: left;
+            padding:20px 20px 20px 20px;
+            border-radius: 20px;
+
+
+
+        }
+
+        #mesaj_listesi li {  padding: 14px 14px 14px 14px; }
     </style>
 
 
@@ -406,21 +437,121 @@
 
 
 @section('js')
+    <script src="/js/jquery.form.min.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/messages_tr.min.js"></script>
+    <script src="/js/sweetalert2.min.js"></script>
 
-
-
+    <script src="http://localhost:3333/socket.io/socket.io.js"></script>
 
 
     <script>
 
 
+        var soket = io.connect("http://localhost:3333");
 
+
+
+        soket.on("connect", function (){
+
+        });
 
         $(document).ready(function(){
-                $('#txt-area').scrollTop($('#txt-area')[0].scrollHeight);
+            $('#txt-area').scrollTop($('#txt-area')[0].scrollHeight);
+
+
+            $('form').submit(function(){
+
+                soket.emit('chat message', [$('#m').val(),$('#g_kisi').val(),$('#g_alan').val(),$('#zaman').val()]);
+
+                //#m => mesaj icerigi , #g_kisi =>mesaji gonderen kisi
+                $('#m').val('');
+                return false;
+
             });
 
-        </script>
+
+
+
+            $('#my_Form').validate();
+            $('#my_Form').ajaxForm({
+
+
+
+                success:function(response) {
+
+                   then(function () {
+
+                        if (response.durum == 'error') {
+
+                        }
+                        else {
+
+                        }
+
+                    });
+                }
+
+            });
+
+
+
+
+        });
+
+
+        soket.on('chat message1', function(msg){
+
+            var mesaj= $('#g_kisi').val();
+
+            var resim=$('#resim').val();
+            var g_resim=$('#g_resim').val();
+
+
+           //mesaj atan icin olan bolum
+            if(msg[1]==$('#g_kisi').val()){
+
+                if(resim==null||resim==''){
+                    //$("#mesaj_listesi").append("&nbsp;&nbsp;&nbsp;<img class='img-circle' width='40px' height='40px' src='/uploads/img/user.png'/>");
+                    $("#mesaj_listesi").append($('<li class="deneme">'+msg[0]+"&nbsp;&nbsp;&nbsp;&nbsp;"+ "<img class='img-circle' width='40px' height='40px' src='/uploads/img/user.png'/>"+'</li>'));
+
+                }else{
+                    $("#mesaj_listesi").append($('<li class="deneme">'+msg[0]+"&nbsp;&nbsp;&nbsp;&nbsp;"+"<img class='img-circle' width='40px' height='40px' src='/uploads/img/"+resim+"'>"+'</li>'));
+                }
+
+
+
+                //$("#mesaj_listesi").append($('<li class="deneme" style="background:#FCFBF6; color: black">').text(msg[0]));
+
+
+
+            }
+            else{
+
+                if(g_resim==null||g_resim==''){
+                    //$("#mesaj_listesi").append("&nbsp;&nbsp;&nbsp;<img class='img-circle' width='40px' height='40px' src='/uploads/img/user.png'/>");
+                    $("#mesaj_listesi").append($('<li class="deneme1">'+"<img class='img-circle' width='40px' height='40px' src='/uploads/img/user.png'/>"+"&nbsp;&nbsp;&nbsp;&nbsp;"+msg[0]+'</li>'));
+                }else{
+                    //$("#mesaj_listesi").append("&nbsp;&nbsp;&nbsp;<img class='img-circle' width='40px' height='40px' src='/uploads/img/"+g_resim+"'>");
+                    $("#mesaj_listesi").append($('<li class="deneme1">'+"<img class='img-circle' width='40px' height='40px' src='/uploads/img/"+g_resim+"'>"+"&nbsp;&nbsp;&nbsp;&nbsp;"+msg[0]+'</li>'));
+                }
+
+
+                //$("#mesaj_listesi").append($('<li style="background:#E8FFD4; color: black">'+"<img class='img-circle' width='40px' height='40px' src='/uploads/img/user.png'/>"+"&nbsp;&nbsp;&nbsp;&nbsp;"+msg[0]+'</li>'));
+            }
+
+
+        });
+
+
+
+
+
+
+
+
+    </script>
+
 
 @endsection
 
